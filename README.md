@@ -1,5 +1,8 @@
 #   Bulk Email Sender
 
+Gmail hesabı kullanılarak, excel dosyasındaki ilk sütunda bulunan email
+adreslerine toplu şekilde mail atar.
+
 **Bağımlılıklar:**
 
 -   Ruby 1.9.3
@@ -46,3 +49,7 @@ gem install roo tlsmail gtk2
 [Uygulamayı İndirmek İçin Tıkla](https://github.com/ecylmz/bulkemail-gui/zipball/master)
 
 Zip içerisinden çıkan bulkemail.rb dosyasına çift tıkla.
+
+## Örnek Ekran Görüntüsü
+
+![bulkemailsender](http://oi45.tinypic.com/qxnoug.jpg)
