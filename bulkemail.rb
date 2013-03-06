@@ -128,9 +128,23 @@ class MailerGtk
       return
     end
 
+
+    # smtp settings
+    email_domain = @from.text.split("@").last
+    if email_domain == "ecylmz.com"
+      smtp_domain = "smtp.gmail.com"
+      domain = "gmail.com"
+      port = 587
+    elsif email_domain == "gmail.com"
+      smtp_domain = "smtp.gmail.com"
+      domain = "gmail.com"
+      port = 587
+    end
+
+
     if email_list
       Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
-      Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', @from.text, @password.text, :login) do |smtp|
+      Net::SMTP.start(smtp_domain, port, domain, @from.text, @password.text, :login) do |smtp|
         md = Gtk::MessageDialog.new(@window,
                                     Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::WARNING,
                                     Gtk::MessageDialog::BUTTONS_CLOSE, "Bu Pencereyi Kapattıktan Sonra Gönderim Başlayacaktır!
