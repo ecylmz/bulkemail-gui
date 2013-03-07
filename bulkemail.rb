@@ -53,11 +53,18 @@ class MailerGtk
     @editor.set_size_request 700, 300
     table.attach(@editor, 0, 1, 7, 8, Gtk::FILL, Gtk::FILL, 0, 0)
 
-    activate = Gtk::Button.new "Dosya Seç"
+    activate = Gtk::Button.new "Liste Seç"
     activate.set_size_request 80, 30
     table.attach(activate, 3, 4, 1, 2, Gtk::FILL, Gtk::SHRINK, 1, 1)
     activate.signal_connect "clicked" do
       file_chooser
+    end
+
+    activate = Gtk::Button.new "Ek Seç"
+    activate.set_size_request 80, 30
+    table.attach(activate, 4, 5, 1, 2, Gtk::FILL, Gtk::SHRINK, 1, 1)
+    activate.signal_connect "clicked" do
+      attachment_chooser
     end
 
     valign = Gtk::Alignment.new 0, 0, 0, 0
@@ -74,7 +81,7 @@ class MailerGtk
   end
 
   def file_chooser
-    file_choose = Gtk::FileChooserDialog.new("Dosya Seç",
+    file_choose = Gtk::FileChooserDialog.new("Liste Seç",
                                               @window,
                                               Gtk::FileChooser::ACTION_OPEN,
                                               nil,
@@ -83,6 +90,20 @@ class MailerGtk
 
     if file_choose.run == Gtk::Dialog::RESPONSE_ACCEPT
       @filename = file_choose.filename
+    end
+    file_choose.destroy
+  end
+
+  def attachment_chooser
+    file_choose = Gtk::FileChooserDialog.new("Ek Seç",
+                                              @window,
+                                              Gtk::FileChooser::ACTION_OPEN,
+                                              nil,
+                                              [Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_CANCEL],
+                                              [Gtk::Stock::OPEN, Gtk::Dialog::RESPONSE_ACCEPT])
+
+    if file_choose.run == Gtk::Dialog::RESPONSE_ACCEPT
+      @attachment = file_choose.filename
     end
     file_choose.destroy
   end
@@ -155,7 +176,33 @@ class MailerGtk
         email_list.each do |to|
           begin
             # mail içeriğini hazırla
-            content = <<EOF
+            if @attachment
+              filename = File.basename(@attachment)
+              file = File.read(@attachment)
+              encode_file = [file].pack("m")
+              marker = "AUNIQUEMARKER"
+              content = <<EOF
+From: #{@from.text}
+To: #{to}
+Subject: #{@subject.text}
+Date: #{Time.now.rfc2822}
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=#{marker}
+--#{marker}
+Content-Type: text/plain
+Content-Transfer-Encoding:8bit
+
+#{@editor.buffer.text}
+--#{marker}
+Content-Type: multipart/mixed; name=\"#{filename}\"
+Content-Transfer-Encoding:base64
+Content-Disposition: attachment; filename="#{filename}"
+
+#{encode_file}
+##--#{marker}--
+EOF
+            else
+              content = <<EOF
 From: #{@from.text}
 To: #{to}
 Subject: #{@subject.text}
@@ -163,6 +210,7 @@ Date: #{Time.now.rfc2822}
 
 #{@editor.buffer.text}
 EOF
+            end
             # email'i gönder
             smtp.send_message(content, @from.text, to)
           rescue
