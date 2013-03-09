@@ -152,9 +152,9 @@ class MailerGtk
 
     # smtp settings
     email_domain = @from.text.split("@").last
-    if email_domain == "ecylmz.com"
-      smtp_domain = "smtp.gmail.com"
-      domain = "gmail.com"
+    if email_domain == "fesss.org"
+      smtp_domain = "mail.fesss.org"
+      domain = "fesss.org"
       port = 587
     elsif email_domain == "gmail.com"
       smtp_domain = "smtp.gmail.com"
@@ -178,7 +178,7 @@ class MailerGtk
             # mail içeriğini hazırla
             if @attachment
               filename = File.basename(@attachment)
-              file = File.read(@attachment)
+              file = open(@attachment, "rb") {|io| io.read}
               encode_file = [file].pack("m")
               marker = "AUNIQUEMARKER"
               content = <<EOF
